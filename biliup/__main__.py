@@ -9,7 +9,7 @@ from . import __version__, LOG_CONF
 from .common.Daemon import Daemon
 from .common.reload import AutoReload
 from .common.timer import Timer
-from .engine import config
+from biliup.config import config
 from .engine.event import Event
 
 
@@ -17,10 +17,11 @@ def arg_parser():
     daemon = Daemon('watch_process.pid', lambda: main(args))
     parser = argparse.ArgumentParser(description='Stream download and upload, not only for bilibili.')
     parser.add_argument('--version', action='version', version=f"v{__version__}")
-    parser.add_argument('-H', help='web api host [default: localhost]', dest='host')
+    parser.add_argument('-H', help='web api host [default: 0.0.0.0]', dest='host')
     parser.add_argument('-P', help='web api port [default: 19159]', default=19159, dest='port')
     parser.add_argument('--http', action='store_true', help='enable web api')
-    parser.add_argument('--password',help='web ui password ,default username is biliup', dest='password')
+    parser.add_argument('--static-dir', help='web static files directory for custom ui')
+    parser.add_argument('--password', help='web ui password ,default username is biliup', dest='password')
     parser.add_argument('-v', '--verbose', action="store_const", const=logging.DEBUG, help="Increase output verbosity")
     parser.add_argument('--config', type=argparse.FileType(encoding='UTF-8'),
                         help='Location of the configuration file (default "./config.yaml")')
@@ -34,7 +35,7 @@ def arg_parser():
     parser_restart.set_defaults(func=daemon.restart)
     parser.set_defaults(func=lambda: asyncio.run(main(args)))
     args = parser.parse_args()
-    if(args.http):
+    if args.http:
         config.create_without_config_input(args.config)
     else:
         config.load(args.config)
@@ -46,7 +47,6 @@ def arg_parser():
     if platform.system() == 'Windows':
         return asyncio.run(main(args))
     args.func()
-
 
 
 async def main(args):

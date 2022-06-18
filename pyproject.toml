@@ -10,7 +10,7 @@ keywords = ["bilibili douyu huya"]
 urls = {Homepage = "https://github.com/ForgQi/bilibiliupload"}
 requires-python = ">= 3.7"
 dependencies = [
-    "selenium >= 3.8.1",
+    "stream-gears >= 0.1.0",
     "psutil >= 5.4.6",
     "yt_dlp >= 2022.3.8.2",
     "Pillow >= 5.2.0",
@@ -20,11 +20,12 @@ dependencies = [
     "streamlink >= 0.14.2",
     "ykdl >= 1.8.0",
     "rsa >= 4.6",
-    "aiohttp_cors",
-    "aiohttp_basicauth_middleware",
     'importlib-resources; python_version<"3.9"',
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+selenium = ["selenium >= 3.8.1"]
 
 [project.readme]
 file = "README.md"
@@ -38,7 +39,7 @@ license-files = ["LICENSE"]
 include-package-data = false
 
 [tool.setuptools.package-data]
-biliup = ["common/*.ini", "public/*", "public/build/*"]
+biliup = ["common/*.ini", "web/public/*", "web/public/build/*"]
 
 [tool.setuptools.packages.find]
 include = ["biliup*"]
