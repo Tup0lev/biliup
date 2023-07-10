@@ -1,12 +1,13 @@
 import asyncio
+import logging
+import subprocess
 import sys
 import os
-import subprocess
-import logging
-
 from .timer import Timer
 
 logger = logging.getLogger('biliup')
+
+global global_reloader
 
 
 def has_extension(fname_list, *extension):
@@ -22,6 +23,7 @@ class AutoReload(Timer):
         super().__init__(interval)
         self.watched = watched
         self.mtimes = {}
+        self.triggered = False
 
     @staticmethod
     def _iter_module_files():
@@ -64,7 +66,7 @@ class AutoReload(Timer):
         """Check file state ervry interval. If any change is detected, exit this
         process with a special code, so that deamon will to restart a new process.
         """
-        if not self._is_any_file_changed():
+        if not self._is_any_file_changed() and not self.triggered:
             return
         while True:
             await asyncio.sleep(self.interval)
@@ -82,6 +84,14 @@ class AutoReload(Timer):
                 #     args = ["python", path]
                 # else:
                 #     args = [path, 'start']
-                args = ['biliup', 'start']
-                subprocess.Popen(args)
+                if not is_docker():
+                    subprocess.Popen(sys.argv)
                 return logger.info('重启')
+
+
+def is_docker():
+    path = '/proc/self/cgroup'
+    return (
+            os.path.exists('/.dockerenv') or
+            os.path.isfile(path) and any('docker' in line for line in open(path))
+    )
